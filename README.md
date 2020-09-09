@@ -1,4 +1,4 @@
-# Mainmoil T265
+# Mainmoil T265 CUDA
 
 ![screenshot](https://github.com/yourskc/mainmoil_t265/blob/master/images/screenshot.png?raw=true)
 
