@@ -23,7 +23,7 @@ sudo apt install freeglut3-dev
 ## Build and Run
 
 ```
-git clone https://github.com/yourskc/mainmoil_t265.git
+git clone https://github.com/yourskc/mainmoil_t265_cuda.git
 cd mainmoil_t265
 mkdir build
 cd build
