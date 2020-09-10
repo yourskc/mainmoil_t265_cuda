@@ -32,7 +32,7 @@ make
 ./mainmoil
 ```
 
-## Initial Pose for T265/ D435
+## Initial Pose of T265/ D435
 
 To get the best results, please hold your T265/ D435 in the directions as follows when you start running this program,
 
