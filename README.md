@@ -32,7 +32,7 @@ make
 ./mainmoil
 ```
 
-# Initial Pose for T265/ D435
+## Initial Pose for T265/ D435
 
 To get the best results, please hold your T265/ D435 in the directions as follows when you start running this program,
 
@@ -40,7 +40,20 @@ To get the best results, please hold your T265/ D435 in the directions as follow
 
 ![screenshot](https://github.com/yourskc/mainmoil_t265_cuda/blob/master/images/d435.jpg?raw=true)
 
+## Main UI Hotkeys
+
+| Key                 | Operation                               |   |   |   |
+|---------------------|-----------------------------------------|---|---|---|
+| Up, Dn, Left, Right | View Angle Control                      |   |   |   |
+| +/ -                | Zoom in/ out                            |   |   |   |
+| r                   | Reset View Angle to Alpha = 0, Beta = 0 |   |   |   |
+| c                   | Enable USB Camera                       |   |   |   |
+| i                   | Enable IP Camera                        |   |   |   |
+| v                   | Video File Playback                     |   |   |   |
+| Space               | Toggle Pause/ Play in Video playback    |   |   |   |
+
 ## Overview
+
 This sample demonstrates how to use data from gyroscope and accelerometer to compute the rotation ([Euler Angles](https://en.wikipedia.org/wiki/Euler_angles)) of the camera, denoted by `theta`.
 
 > The example is based on [code](https://github.com/GruffyPuffy/imutest) by @GruffyPuffy.
@@ -48,6 +61,7 @@ This sample demonstrates how to use data from gyroscope and accelerometer to com
 In this example, we use complemetary filter to aggregate data from gyroscope and accelerometer. For more information, you can look at this [tutorial](http://www.pieter-jan.com/node/11) by Pieter-Jan or this [presentation](https://github.com/jcarrus/MakeMITSelfBalancingRobot/blob/master/segspecs/filter.pdf) by Shane Colton, among other resources available online.
 
 ## Expected Output
+
 ![expected output](https://raw.githubusercontent.com/wiki/IntelRealSense/librealsense/res/imu.gif)
 
 The application should open a window with a 3D model of the camera, approximating the physical orientation. In addition, you should be able to interact with the camera using your mouse, for rotating, zooming, and panning.
