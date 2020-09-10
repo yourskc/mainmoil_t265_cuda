@@ -17,6 +17,8 @@ to your system.
 
 sudo apt install freeglut3-dev
 
+sudo apt install nlohmann-json-dev
+
 ## Build and Run
 
 ```

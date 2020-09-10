@@ -9,7 +9,42 @@ MoilView::MoilView()
 }
 void MoilView::Show()
 {
-    
+
+    Para[0] = "{"
+              "\"cameraName\": \"picamera\","
+              "\"cameraSensorWidth\": 1.4,"
+              "\"cameraSensorHeight\": 1.4,"
+              "\"iCx\": 1298.0,"
+              "\"iCy\": 966.0,"
+              "\"ratio\": 1,"
+              "\"imageWidth\": 2592.0,"
+              "\"imageHeight\": 1944.0,"
+              "\"calibrationRatio\":  3.4,"
+              "\"parameter0\": 0,"
+              "\"parameter1\": 0,"
+              "\"parameter2\": 0,"
+              "\"parameter3\": 10.11,"
+              "\"parameter4\": -85.241,"
+              "\"parameter5\": 282.21"
+            "}";
+    Para[1] = "{"
+              "\"cameraName\": \"endoscope\","
+              "\"cameraSensorWidth\": 2,"
+              "\"cameraSensorHeight\": 2,"
+              "\"iCx\": 1120.0,"
+              "\"iCy\": 520.0,"
+              "\"ratio\": 1,"
+              "\"imageWidth\": 1920.0,"
+              "\"imageHeight\": 1080.0,"
+              "\"calibrationRatio\": 4.05,"
+              "\"parameter0\": 0,"
+              "\"parameter1\": 0,"
+              "\"parameter2\": 0,"
+              "\"parameter3\": 0,"
+              "\"parameter4\": 0,"
+              "\"parameter5\": 130"
+            "}";
+
     md->Config("rpi_220", 1.4, 1.4,
                1320.0, 1017.0, 1.048,
                2592, 1944, 3.4, // 4.05
@@ -35,17 +70,22 @@ void MoilView::Show()
     image_input = imread("../images/image.jpg", IMREAD_COLOR);
     // image_input = imread( "images/image2.jpg", IMREAD_COLOR);
     MediaType mediaType = MediaType::IMAGE_FILE;
-    double fix_width = image_input.cols;
-    double fix_height = image_input.rows;
-    mapX = Mat(fix_height, fix_width, CV_32F);
-    mapY = Mat(fix_height, fix_width, CV_32F);
-    Mat image_result(fix_height, fix_width, CV_32F);
+    fix_width = image_input.cols;
+    fix_height = image_input.rows;
+    initMat();
     m_ratio = fix_width / calibrationWidth;
     namedWindow("MOIL Anypoint", WINDOW_AUTOSIZE);
     moveWindow("MOIL Anypoint", x_base, y_base);
     doAnyPoint();
     Display();
 }
+
+void MoilView::initMat()
+{
+    mapX = Mat(fix_height, fix_width, CV_32F);
+    mapY = Mat(fix_height, fix_width, CV_32F); 
+}
+
 void MoilView::Display()
 {
     Mat image_result;
@@ -116,7 +156,16 @@ void MoilView::AnypointCtrl(AnypointControl ctrl)
         {
             mediaType = MediaType::IPCAMERA;
         }        
-        break;        
+        break;   
+    case AnypointControl::OpenVideo:
+        openVideo(videoFileAddress);
+        break;  
+    case AnypointControl::Pause:
+    if (playState == PlayState::PLAY)
+        playState = PlayState::STOP ;
+    else    
+        playState = PlayState::PLAY ;
+        break;                       
     case AnypointControl::CloseCamera:    
         cap0.release();
         mediaType = MediaType::NONE;
@@ -134,24 +183,92 @@ void MoilView::AnypointGoto(int Alpha, int Beta)
     currBeta = (currBeta > 90) ? 90 : currBeta;
     isAnyPointUpdate = true;
 }
+void MoilView::closeCamera()
+{
+    cap0.release();
+    mediaType = MediaType::NONE;
+}
+void MoilView::openVideo(string videoStreamAddress)
+{
+    if ( cap0.isOpened() && mediaType == MediaType::CAMERA) {
+    closeCamera();
+    }
+        if ( cap0.isOpened())
+             cap0.release();
+        cap0.open(videoStreamAddress);
+        if ( cap0.isOpened() ) {
+        int frame_width = cap0.get(CAP_PROP_FRAME_WIDTH);
+        int frame_height = cap0.get(CAP_PROP_FRAME_HEIGHT);            
 
+        mediaType = MediaType::VIDEO_FILE;
+        if ( (frame_width == 2592) && (frame_height == 1944) && currPara != 0 ) {
+            currPara = 0;
+            loadParameterJson(Para[currPara]);
+            fix_width = md->getImageWidth();
+            fix_height = md->getImageHeight();
+            initMat();
+        }
+        else if ( (frame_width == 1920) && (frame_height == 1080) && currPara != 1 ) {
+            currPara = 1;
+            loadParameterJson(Para[currPara]);
+            fix_width = md->getImageWidth();
+            fix_height = md->getImageHeight();
+            initMat();
+        }
+        playState = PlayState::PLAY ;
+        }
+
+}
+void MoilView::loadParameterJson(string str)
+{
+        json Para = json::parse(str);
+        md->Config(Para["cameraName"], Para["cameraSensorWidth"], Para["cameraSensorHeight"],
+            Para["iCx"], Para["iCy"], Para["ratio"],
+            Para["imageWidth"], Para["imageHeight"], Para["calibrationRatio"],
+            Para["parameter0"],
+            Para["parameter1"],
+            Para["parameter2"],
+            Para["parameter3"],
+            Para["parameter4"],
+            Para["parameter5"]
+            );
+
+}
 char MoilView::MainLoop(bool isProcessKey)
 {
     char c;
-    // Mat frame;
-    if (((mediaType == MediaType::CAMERA)||(mediaType == MediaType::IPCAMERA)) && cap0.isOpened())
+    if(cap0.isOpened()) 
     {
+        if((mediaType == MediaType::CAMERA)||(mediaType == MediaType::IPCAMERA)) 
+        {
         cap0 >> image_input;
         if ((image_input.cols != fix_width) || (image_input.rows != fix_height))
             cv::resize(image_input, image_input, Size(fix_width, fix_height));
         isDisplayUpdate = true;
-    }
+        }
+        else if ((mediaType == MediaType::VIDEO_FILE) && (playState == PlayState::PLAY))
+        {
+        cap0 >> image_input;
+        if ( image_input.empty() ) {
+            playState = PlayState::STOP;
+            cap0.set(CAP_PROP_POS_FRAMES, 0);
+        }   
+        else if ((image_input.cols != fix_width) || (image_input.rows != fix_height))
+            cv::resize(image_input, image_input, Size(fix_width, fix_height));
+            isDisplayUpdate = true;
+        } 
+    } 
     else
         mediaType == MediaType::NONE;
 
     if (image_input.empty())
     {
-        return -1;
+        if (mediaType == MediaType::VIDEO_FILE) {
+            // playState = PlayState::STOP;
+            // cap0.set(CAP_PROP_POS_FRAMES, 0);
+        }
+        else    
+            return -1;
     }
 
     if (isAnyPointUpdate)
@@ -198,7 +315,15 @@ char MoilView::MainLoop(bool isProcessKey)
         else if ((c == 'i') || (c == 'I')) // C : IP Camera
         {
             AnypointCtrl(AnypointControl::OpenIPCamera);
-        }                
+        }      
+        else if ((c == 'v') || (c == 'V')) // V : Video
+        {
+            AnypointCtrl(AnypointControl::OpenVideo);
+        }   
+        else if (c == ' ') // Space : Pause
+        {
+            AnypointCtrl(AnypointControl::Pause);
+        }                           
         else if ((c == 'r') || (c == 'R')) // R : Reset
         {
             AnypointCtrl(AnypointControl::Reset);
