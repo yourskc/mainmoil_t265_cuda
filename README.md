@@ -1,13 +1,15 @@
 # Mainmoil T265 CUDA
 
-![screenshot](https://github.com/yourskc/mainmoil_t265/blob/master/images/screenshot.png?raw=true)
+![screenshot](https://github.com/yourskc/mainmoil_t265_cuda/blob/master/images/screenshot.png?raw=true)
 
 This project integrate moildev library and realsense library, users can 
-control the view angle with T265. The original reference code is :   
+control the view angle with T265/ D435. The original reference code is :   
 
 https://github.com/IntelRealSense/librealsense/tree/master/examples/motion
 
 ## Prereqisities
+
+sudo apt install nlohmann-json-dev
 
 Install librealsense on Ubuntu 18.04 :
 https://dev.intelrealsense.com/docs/compiling-librealsense-for-linux-ubuntu-guide
@@ -17,7 +19,6 @@ to your system.
 
 sudo apt install freeglut3-dev
 
-sudo apt install nlohmann-json-dev
 
 ## Build and Run
 
@@ -30,6 +31,14 @@ cmake ..
 make
 ./mainmoil
 ```
+
+# Initial Pose for T265/ D435
+
+To get the best results, please hold your T265/ D435 in the directions as follows when you start running this program,
+
+![screenshot](https://github.com/yourskc/mainmoil_t265_cuda/blob/master/images/t265.jpg?raw=true)
+
+![screenshot](https://github.com/yourskc/mainmoil_t265_cuda/blob/master/images/d435.jpg?raw=true)
 
 ## Overview
 This sample demonstrates how to use data from gyroscope and accelerometer to compute the rotation ([Euler Angles](https://en.wikipedia.org/wiki/Euler_angles)) of the camera, denoted by `theta`.
