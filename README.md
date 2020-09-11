@@ -3,7 +3,10 @@
 ![screenshot](https://github.com/yourskc/mainmoil_t265_cuda/blob/master/images/screenshot.png?raw=true)
 
 This project integrate moildev library and realsense library, users can 
-control the view angle with T265/ D435. The original reference code is :   
+control the view angle with T265/ D435. Till now, we've successfully run
+it with both T265/ D435i on x86_64+Ubuntu 18.04 and T265 on NVIDIA Jetson TX2. 
+
+The main reference code is :   
 
 https://github.com/IntelRealSense/librealsense/tree/master/examples/motion
 
@@ -11,11 +14,30 @@ https://github.com/IntelRealSense/librealsense/tree/master/examples/motion
 
 sudo apt install nlohmann-json-dev
 
-Install librealsense on Ubuntu 18.04 :
+Install librealsense on Ubuntu 18.04(x86_64) :
 https://dev.intelrealsense.com/docs/compiling-librealsense-for-linux-ubuntu-guide
 
 Remember to run 'sudo make install' in the final step to install librealsense2
 to your system.
+
+## Notice for installation on NVIDIA Jetson TX2 
+
+Intel does not officially support the Jetson line of devices. Here is an official guide for TX2 installation,
+
+https://dev.intelrealsense.com/docs/nvidia-jetson-tx2-installation
+
+Unfortunately, due to the versions change, there are some mismatches in the steps of the above guide, you can modify ./scripts/patch-realsense-ubuntu-xenial-joule.sh according our version as the follows.
+
+```
+remove line 20 to line 44, insert the following lines 
+kernel_name="kernel-4.4"
+[ ! -d ${kernel_name} ] && git clone https://github.com/jetsonhacks/buildJetsonTX2Kernel.git && cd buildJetsonTX2Kernel && ./getKernelSources.sh && ./scripts/fixMakeFiles.sh && cd .. && cp /usr/src/kernel/${kernel_name} ./${kernel_name}
+```
+
+then run it,
+
+./scripts/patch-realsense-ubuntu-xenial-joule.sh
+
 
 sudo apt install freeglut3-dev
 
@@ -24,7 +46,7 @@ sudo apt install freeglut3-dev
 
 ```
 git clone https://github.com/yourskc/mainmoil_t265_cuda.git
-cd mainmoil_t265
+cd mainmoil_t265_cuda
 mkdir build
 cd build
 cmake ..
