@@ -19,7 +19,7 @@ set( LIB_MOILDEV libmoildev_jetson.a )
 set( LIB_MOILCUDA moilcuda_jetson.o )
 endif()
 	
-set(DEPENDENCIES ${LIB_MOILDEV} ${OpenCV_LIBS} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} realsense2 glfw cuda cudart)
+set(DEPENDENCIES ${LIB_MOILDEV} ${OpenCV_LIBS} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} realsense2 glfw cudart)
 add_subdirectory(glfw)
 add_executable(mainmoil main.cpp moilview.cpp ${LIB_MOILCUDA})
 target_compile_features(mainmoil PUBLIC cxx_std_11)
